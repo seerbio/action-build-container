@@ -16,12 +16,17 @@ inputs:
     description: "The path of a shell script that executes tests on the container (default \"./test_container.sh\"). Will not be executed if the file doesn't exist."
     required: false
     default: "./test_container.sh"
+  working_directory:
+    description: "The directory where the Dockerfile is located."
+    required: false
+    default: "."
 runs:
   using: "composite"
   steps:
     - name: "Build and Push Container"
       run: $GITHUB_ACTION_PATH/entrypoint.sh
       shell: bash
+      working-directory: ${{ inputs.working_directory }}
       env:
         CONTAINER: ${{ inputs.container }}
         CONTAINER_TAG: ${{ inputs.container_tag }}
@@ -29,6 +34,7 @@ runs:
         TEST_SCRIPT: ${{ inputs.test_script }}
     - name: "Tag Commit"
       uses: actions/github-script@v5
+      working-directory: ${{ inputs.working_directory }}
       env:
         CONTAINER: ${{ inputs.container }}
         CONTAINER_TAG: ${{ inputs.container_tag }}
