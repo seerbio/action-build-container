@@ -1,0 +1,39 @@
+name: "Build and Tag Container Image"
+description: "Build, deploy, and tag a container image for pre-acceptance testing."
+author: "Seth Just <sjust@seer.bio>"
+inputs:
+  container:
+    description: "The container image name"
+    required: true
+  container_tag:
+    description: "The tag applied to the container image (default: \"build-XXX\")."
+    required: false
+    default: "build-${{ github.run_number }}"
+  repository:
+    description: "The URI of the repository to which the container image will be deployed."
+    required: true
+  test_script:
+    description: "The path of a shell script that executes tests on the container (default \"./test_container.sh\"). Will not be executed if the file doesn't exist."
+    required: false
+    default: "./test_container.sh"
+runs:
+  using: "composite"
+  steps:
+    - name: "Build and Push Container"
+      run: $GITHUB_ACTION_PATH/entrypoint.sh
+      shell: bash
+      env:
+        CONTAINER: ${{ inputs.container }}
+        CONTAINER_TAG: ${{ inputs.container_tag }}
+        REPOSITORY: ${{ inputs.repository }}
+        TEST_SCRIPT: ${{ inputs.test_script }}
+    - name: "Tag Commit"
+      uses: actions/github-script@v5
+      with:
+        script: |
+          github.rest.git.createRef({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: `refs/tags/${process.env.CONTAINER}/${process.env.CONTAINER_TAG}`,
+            sha: context.sha
+          })
