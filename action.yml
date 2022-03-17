@@ -29,6 +29,9 @@ runs:
         TEST_SCRIPT: ${{ inputs.test_script }}
     - name: "Tag Commit"
       uses: actions/github-script@v5
+      env:
+        CONTAINER: ${{ inputs.container }}
+        CONTAINER_TAG: ${{ inputs.container_tag }}
       with:
         script: |
           github.rest.git.createRef({
