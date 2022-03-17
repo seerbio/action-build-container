@@ -34,7 +34,6 @@ runs:
         TEST_SCRIPT: ${{ inputs.test_script }}
     - name: "Tag Commit"
       uses: actions/github-script@v5
-      working-directory: ${{ inputs.working_directory }}
       env:
         CONTAINER: ${{ inputs.container }}
         CONTAINER_TAG: ${{ inputs.container_tag }}
